@@ -51,7 +51,9 @@ An incorrect password was entered to generate an authentication failure.
 ```text
 Failed password for invalid user fakeuser from 192.168.56.1
 ```
+## Evidence
 
+![SSH Invalid User Detection - Rule 5710](../../screenshots/ssh-detection/5710.png)
 ## 6. MITRE ATT&CK Mapping
 
 - **T1110.001:** Password Guessing
