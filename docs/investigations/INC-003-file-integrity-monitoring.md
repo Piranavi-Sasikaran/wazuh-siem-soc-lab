@@ -51,7 +51,7 @@ echo "SOC FIM Test - File Created" | sudo tee /opt/soc-fim-lab/test.txt
 
 **Evidence:**
 
-![File creation detection](wazuh-siem-soc-lab/screenshots/file-integrity-monitoring/554.png)
+![File creation detection](../../screenshots/file-integrity-monitoring/554.png)
 
 ### Test 2 — File Modification
 
