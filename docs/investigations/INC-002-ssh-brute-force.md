@@ -63,6 +63,9 @@ Oct 08 06:26:51 soc-siem sshd[4699]: Connection reset by invalid user fakeuser 1
 ```
 
 The Wazuh alert also included `previous_output` containing earlier invalid-user and connection-reset events from the same source IP.
+## Evidence
+
+![SSH Brute-Force Detection - Rule 5712](../../screenshots/ssh-detection/5712.png)
 
 ## 6. Detection Analysis
 
