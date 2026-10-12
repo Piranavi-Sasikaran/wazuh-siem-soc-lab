@@ -4,11 +4,11 @@
 
 ## Project Overview
 
-This project demonstrates the deployment and operation of a Wazuh-based SIEM environment for centralized security monitoring, threat detection, and incident investigation.
+This project demonstrates the deployment and operation of a Wazuh-based SIEM environment for centralized security monitoring, threat detection, event correlation, and SOC incident investigation.
 
-The lab simulates suspicious SSH authentication activity and file integrity changes on an Ubuntu endpoint. Security events are collected, analyzed, and investigated through Wazuh.
+The laboratory simulates SSH authentication anomalies, repeated SSH activity triggering brute-force alerts, and file integrity changes on an Ubuntu endpoint. Security events are collected, analyzed, and investigated through the Wazuh Dashboard.
 
-The project is being developed to strengthen practical skills in SOC operations, Blue Team security, and incident response.
+The project focuses on developing practical skills in SOC operations, Blue Team security, threat detection, and incident response.
 
 ## Technologies Used
 
@@ -19,91 +19,105 @@ The project is being developed to strengthen practical skills in SOC operations,
 | WSL2 Ubuntu | Wazuh central server |
 | Oracle VirtualBox | Endpoint virtualization |
 | Windows 11 | Host operating system |
-| Linux SSH | Authentication monitoring |
-| Wazuh Syscheck | File Integrity Monitoring |
-| MITRE ATT&CK | Detection technique mapping |
+| Linux SSH | Authentication and brute-force alert detection |
+| Wazuh Syscheck | Real-time File Integrity Monitoring |
+| MITRE ATT&CK | Threat detection technique mapping |
 
 ## System Architecture
 
-The lab consists of three main environments:
+The laboratory consists of three main environments:
 
-- **Windows 11 Host:** Runs VirtualBox and WSL2 and provides browser access to the dashboard.
+- **Windows 11 Host:** Runs VirtualBox and WSL2 and provides browser access to the Wazuh Dashboard.
 - **WSL2 Ubuntu:** Hosts the Wazuh Manager, Indexer, and Dashboard.
 - **VirtualBox Ubuntu Server:** Runs the Wazuh Agent and generates monitored security events.
 
-The Ubuntu endpoint sends security events to the Wazuh Manager for analysis and alert generation.
+The Wazuh Agent collects security events from the Ubuntu endpoint and forwards them to the Wazuh Manager for analysis and alert generation.
 
-[View Architecture Documentation](docs/architecture.md)
+[View Architecture Documentation](https://github.com/Piranavi-Sasikaran/wazuh-siem-soc-lab/blob/main/docs/architecture.md)
 
 ## Implemented Security Detection Scenarios
 
 | Detection Scenario | Wazuh Rule | Severity | Status |
 |---|---|---|---|
-| SSH invalid-user detection | 5710 | Level 5 | Completed |
-| Repeated SSH activity correlation | 5712 | Level 10 | Completed |
-| File creation detection | 554 | Level 5 | Completed |
-| File modification detection | 550 | Level 7 | Completed |
-| File deletion detection | 553 | Level 7 | Completed |
+| SSH Invalid-User Detection | 5710 | Level 5 | Completed |
+| SSH Brute-Force Alert Detection | 5712 | Level 10 | Completed |
+| File Creation Detection | 554 | Level 5 | Completed |
+| File Modification Detection | 550 | Level 7 | Completed |
+| File Deletion Detection | 553 | Level 7 | Completed |
 
-### SSH Authentication Monitoring
+### SSH Authentication & Brute-Force Detection
 
-Simulated SSH connections using a nonexistent username to evaluate Wazuh's authentication monitoring and event correlation capabilities.
+Conducted controlled SSH authentication simulations using a nonexistent username to evaluate Wazuh's authentication monitoring and brute-force event correlation capabilities.
 
-The lab generated individual authentication alerts and a higher-severity alert for repeated suspicious SSH activity.
+**Detection Results:**
 
-**Investigations:**
+- **Rule 5710 (Level 5):** Detected SSH authentication attempts involving a nonexistent username.
+- **Rule 5712 (Level 10):** Triggered a correlated SSH brute-force alert after repeated invalid-user connection events from the same source IP.
+- Analyzed SSH logs, source IP addresses, authentication-related events, and Wazuh rule metadata to investigate suspicious activity.
 
-- [INC-001 — SSH Invalid User Detection](docs/investigations/INC-001-ssh-invalid-user.md)
-- [INC-002 — SSH Brute-Force Detection](docs/investigations/INC-002-ssh-brute-force.md)
+**Technical Note:** The brute-force alert was generated from repeated invalid-user and pre-authentication connection events rather than confirmed password-guessing attempts.
 
-### File Integrity Monitoring
+**SOC Investigations:**
 
-Configured real-time monitoring for `/opt/soc-fim-lab` using Wazuh Syscheck.
+- [INC-001 — SSH Invalid User Detection](https://github.com/Piranavi-Sasikaran/wazuh-siem-soc-lab/blob/main/docs/investigations/INC-001-ssh-invalid-user.md)
+- [INC-002 — SSH Brute-Force Detection](https://github.com/Piranavi-Sasikaran/wazuh-siem-soc-lab/blob/main/docs/investigations/INC-002-ssh-brute-force.md)
 
-Successfully detected:
+### File Integrity Monitoring (FIM)
 
-- File creation
-- File modification
-- File deletion
+Configured real-time File Integrity Monitoring using Wazuh Syscheck to monitor changes within `/opt/soc-fim-lab` on the Ubuntu endpoint.
 
-**Investigation:**
+**Detection Results:**
 
-[INC-003 — File Integrity Monitoring](docs/investigations/INC-003-file-integrity-monitoring.md)
+- **Rule 554 (Level 5):** Successfully detected file creation.
+- **Rule 550 (Level 7):** Successfully detected file modification through integrity checksum changes.
+- **Rule 553 (Level 7):** Successfully detected file deletion.
+
+Investigated FIM alerts and analyzed file paths, event types, detection rules, and MITRE ATT&CK mappings.
+
+**SOC Investigation:**
+
+[INC-003 — File Integrity Monitoring](https://github.com/Piranavi-Sasikaran/wazuh-siem-soc-lab/blob/main/docs/investigations/INC-003-file-integrity-monitoring.md)
 
 ## SOC Investigation Reports
 
 | Incident ID | Investigation | Status |
 |---|---|---|
 | INC-001 | SSH Invalid User Detection | Closed — Authorized Test |
-| INC-002 | Repeated SSH Activity Detection | Closed — Authorized Test |
+| INC-002 | SSH Brute-Force Detection | Closed — Authorized Test |
 | INC-003 | File Integrity Monitoring | Closed — Authorized Test |
 
-Each report documents the test scenario, observed alerts, analysis, and investigation outcome.
+Each investigation report includes:
+
+- Security simulation objectives and execution steps.
+- Relevant Wazuh detection rules and alert details.
+- Security event analysis and MITRE ATT&CK mapping.
+- Investigation findings and incident classification.
+- Supporting screenshots and detection evidence.
 
 ## Documentation
 
-- [System Architecture](docs/architecture.md)
-- [Installation and Deployment Guide](docs/installation.md)
-- [INC-001: SSH Invalid User Detection](docs/investigations/INC-001-ssh-invalid-user.md)
-- [INC-002: SSH Brute-Force Detection](docs/investigations/INC-002-ssh-brute-force.md)
-- [INC-003: File Integrity Monitoring](docs/investigations/INC-003-file-integrity-monitoring.md)
+- [System Architecture](https://github.com/Piranavi-Sasikaran/wazuh-siem-soc-lab/blob/main/docs/architecture.md)
+- [Installation and Deployment Guide](https://github.com/Piranavi-Sasikaran/wazuh-siem-soc-lab/blob/main/docs/installation.md)
+- [INC-001: SSH Invalid User Detection](https://github.com/Piranavi-Sasikaran/wazuh-siem-soc-lab/blob/main/docs/investigations/INC-001-ssh-invalid-user.md)
+- [INC-002: SSH Brute-Force Detection](https://github.com/Piranavi-Sasikaran/wazuh-siem-soc-lab/blob/main/docs/investigations/INC-002-ssh-brute-force.md)
+- [INC-003: File Integrity Monitoring](https://github.com/Piranavi-Sasikaran/wazuh-siem-soc-lab/blob/main/docs/investigations/INC-003-file-integrity-monitoring.md)
 
 ## Skills Demonstrated
 
 - SIEM deployment and configuration
 - Wazuh Agent installation and management
-- Centralized security log collection
-- SSH authentication monitoring
+- Centralized security log collection and analysis
+- SSH authentication and brute-force alert detection
 - Security event correlation
 - Real-time File Integrity Monitoring
-- Security alert investigation
+- Threat detection and security alert investigation
 - MITRE ATT&CK mapping
-- SOC incident documentation
-- Linux administration and troubleshooting
+- SOC incident analysis and documentation
+- Linux system administration and troubleshooting
 
 ## Planned Enhancements
 
-The following features are planned for future development:
+The following capabilities are planned for future development:
 
 - [ ] Security Configuration Assessment (SCA)
 - [ ] Vulnerability detection and analysis
@@ -115,6 +129,6 @@ The following features are planned for future development:
 
 ## Project Status
 
-**In Progress — Core SIEM deployment, SSH monitoring, and File Integrity Monitoring completed.**
+**In Progress — Core SIEM deployment, SSH authentication and brute-force alert detection, File Integrity Monitoring, and initial SOC investigations completed.**
 
-This project is an educational security laboratory. All simulations are performed within an authorized testing environment.
+This project is an educational cybersecurity laboratory. All simulations are performed within an authorized testing environment.
