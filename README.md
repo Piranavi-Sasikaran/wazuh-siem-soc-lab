@@ -142,7 +142,7 @@ Other SCA checks also changed status during this period; therefore, the full sco
 
 **Remediation Evidence:**
 
-![Wazuh SCA SSH Root Login Hardening](screenshots/security-configuration-assessment/sca-35659-after.png)
+![Wazuh SCA SSH Root Login Hardening](screenshots/security-configuration-assessment/35659_passed.png)
 
 ## SOC Investigation Reports
 
