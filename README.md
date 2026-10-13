@@ -4,23 +4,27 @@
 
 ## Project Overview
 
-This project demonstrates the deployment and operation of a Wazuh-based SIEM environment for centralized security monitoring, threat detection, event correlation, and SOC incident investigation.
+This project demonstrates the deployment and operation of a Wazuh-based SIEM environment for centralized security monitoring, threat detection, event correlation, security configuration assessment, and SOC investigation.
 
-The laboratory simulates SSH authentication anomalies, repeated SSH activity triggering brute-force alerts, and file integrity changes on an Ubuntu endpoint. Security events are collected, analyzed, and investigated through the Wazuh Dashboard.
+The laboratory simulates SSH authentication anomalies, repeated SSH activity triggering brute-force alerts, and file integrity changes on an Ubuntu endpoint. It also incorporates Security Configuration Assessment (SCA) to identify and remediate Linux security misconfigurations based on CIS benchmarks.
 
-The project focuses on developing practical skills in SOC operations, Blue Team security, threat detection, and incident response.
+Security events and configuration assessment results are collected, analyzed, and investigated through the Wazuh Dashboard.
+
+The project focuses on developing practical skills in SOC operations, Blue Team security, threat detection, Linux system hardening, and incident response.
 
 ## Technologies Used
 
 | Technology | Purpose |
 |---|---|
-| Wazuh 4.14.8 | SIEM and security monitoring |
+| Wazuh 4.14.8 | SIEM, security monitoring, and configuration assessment |
 | Ubuntu Server 24.04 | Monitored endpoint |
 | WSL2 Ubuntu | Wazuh central server |
 | Oracle VirtualBox | Endpoint virtualization |
 | Windows 11 | Host operating system |
-| Linux SSH | Authentication and brute-force alert detection |
+| Linux SSH | Authentication monitoring and SSH hardening |
 | Wazuh Syscheck | Real-time File Integrity Monitoring |
+| Wazuh SCA | Security configuration assessment |
+| CIS Benchmarks | Linux security configuration compliance |
 | MITRE ATT&CK | Threat detection technique mapping |
 
 ## System Architecture
@@ -33,7 +37,9 @@ The laboratory consists of three main environments:
 
 The Wazuh Agent collects security events from the Ubuntu endpoint and forwards them to the Wazuh Manager for analysis and alert generation.
 
-[View Architecture Documentation](https://github.com/Piranavi-Sasikaran/wazuh-siem-soc-lab/blob/main/docs/architecture.md)
+The agent also performs Security Configuration Assessment scans to evaluate the endpoint against security configuration benchmarks.
+
+[View Architecture Documentation](docs/architecture.md)
 
 ## Implemented Security Detection Scenarios
 
@@ -59,8 +65,8 @@ Conducted controlled SSH authentication simulations using a nonexistent username
 
 **SOC Investigations:**
 
-- [INC-001 — SSH Invalid User Detection](https://github.com/Piranavi-Sasikaran/wazuh-siem-soc-lab/blob/main/docs/investigations/INC-001-ssh-invalid-user.md)
-- [INC-002 — SSH Brute-Force Detection](https://github.com/Piranavi-Sasikaran/wazuh-siem-soc-lab/blob/main/docs/investigations/INC-002-ssh-brute-force.md)
+- [INC-001 — SSH Invalid User Detection](docs/investigations/INC-001-ssh-invalid-user.md)
+- [INC-002 — SSH Brute-Force Detection](docs/investigations/INC-002-ssh-brute-force.md)
 
 ### File Integrity Monitoring (FIM)
 
@@ -76,31 +82,94 @@ Investigated FIM alerts and analyzed file paths, event types, detection rules, a
 
 **SOC Investigation:**
 
-[INC-003 — File Integrity Monitoring](https://github.com/Piranavi-Sasikaran/wazuh-siem-soc-lab/blob/main/docs/investigations/INC-003-file-integrity-monitoring.md)
+[INC-003 — File Integrity Monitoring](docs/investigations/INC-003-file-integrity-monitoring.md)
+
+## Security Configuration Assessment (SCA)
+
+Implemented Wazuh Security Configuration Assessment to evaluate the Ubuntu Server endpoint against the **CIS Ubuntu Linux 24.04 LTS Benchmark v1.0.0**.
+
+The assessment identified security configuration weaknesses and provided recommendations for improving endpoint security.
+
+### Initial SCA Assessment
+
+| Metric | Result |
+|---|---|
+| Total Checks | 279 |
+| Passed Checks | 112 |
+| Failed Checks | 125 |
+| Not Applicable | 42 |
+| Compliance Score | 47% |
+
+### SSH Root Login Security Hardening
+
+Investigated **SCA Check 35659 — Ensure sshd PermitRootLogin is disabled**.
+
+The initial assessment identified that direct SSH root login was not fully disabled.
+
+**Investigation and Remediation:**
+
+1. Investigated the failed CIS security configuration check.
+2. Inspected the effective SSH configuration using `sshd -T`.
+3. Identified that the existing configuration permitted key-based root authentication.
+4. Configured `PermitRootLogin no` in the SSH configuration.
+5. Validated the configuration using `sshd -t` and `sshd -T`.
+6. Verified that normal administrative SSH access remained functional.
+7. Triggered a new Wazuh SCA scan to validate remediation.
+
+**Verification Result:**
+
+| Security Check | Before | After |
+|---|---|---|
+| SCA 35659 — SSH Root Login Disabled | Failed | Passed |
+
+### Latest SCA Assessment
+
+| Metric | Result |
+|---|---|
+| Total Checks | 279 |
+| Passed Checks | 120 |
+| Failed Checks | 117 |
+| Not Applicable | 42 |
+| Compliance Score | 50% |
+
+**Outcome:** The overall compliance score increased from **47% to 50%** across assessments, and SSH root login hardening was successfully verified.
+
+Other SCA checks also changed status during this period; therefore, the full score improvement is not attributed solely to the SSH remediation.
+
+**Security Investigation:**
+
+[INC-004 — SSH Root Login Security Hardening](docs/investigations/INC-004-ssh-root-login-hardening.md)
+
+**Remediation Evidence:**
+
+![Wazuh SCA SSH Root Login Hardening](screenshots/security-configuration-assessment/sca-35659-after.png)
 
 ## SOC Investigation Reports
 
-| Incident ID | Investigation | Status |
+| Investigation ID | Investigation | Status |
 |---|---|---|
 | INC-001 | SSH Invalid User Detection | Closed — Authorized Test |
-| INC-002 | SSH Brute-Force Detection | Closed — Authorized Test |
+| INC-002 | SSH Brute-Force Alert Investigation | Closed — Authorized Test |
 | INC-003 | File Integrity Monitoring | Closed — Authorized Test |
+| INC-004 | SSH Root Login Security Hardening | Closed — Remediation Verified |
 
-Each investigation report includes:
+Each investigation report includes relevant information such as:
 
-- Security simulation objectives and execution steps.
-- Relevant Wazuh detection rules and alert details.
-- Security event analysis and MITRE ATT&CK mapping.
-- Investigation findings and incident classification.
-- Supporting screenshots and detection evidence.
+- Security investigation objectives and methodology.
+- Relevant Wazuh detection rules or SCA checks.
+- Security event or configuration analysis.
+- Investigation findings and validation results.
+- Supporting screenshots and technical evidence.
+- Investigation outcome and security recommendations.
 
 ## Documentation
 
-- [System Architecture](https://github.com/Piranavi-Sasikaran/wazuh-siem-soc-lab/blob/main/docs/architecture.md)
-- [Installation and Deployment Guide](https://github.com/Piranavi-Sasikaran/wazuh-siem-soc-lab/blob/main/docs/installation.md)
-- [INC-001: SSH Invalid User Detection](https://github.com/Piranavi-Sasikaran/wazuh-siem-soc-lab/blob/main/docs/investigations/INC-001-ssh-invalid-user.md)
-- [INC-002: SSH Brute-Force Detection](https://github.com/Piranavi-Sasikaran/wazuh-siem-soc-lab/blob/main/docs/investigations/INC-002-ssh-brute-force.md)
-- [INC-003: File Integrity Monitoring](https://github.com/Piranavi-Sasikaran/wazuh-siem-soc-lab/blob/main/docs/investigations/INC-003-file-integrity-monitoring.md)
+- [System Architecture](docs/architecture.md)
+- [Installation and Deployment Guide](docs/installation.md)
+- [INC-001: SSH Invalid User Detection](docs/investigations/INC-001-ssh-invalid-user.md)
+- [INC-002: SSH Brute-Force Detection](docs/investigations/INC-002-ssh-brute-force.md)
+- [INC-003: File Integrity Monitoring](docs/investigations/INC-003-file-integrity-monitoring.md)
+- [INC-004: SSH Root Login Security Hardening](docs/investigations/INC-004-ssh-root-login-hardening.md)
 
 ## Skills Demonstrated
 
@@ -110,6 +179,11 @@ Each investigation report includes:
 - SSH authentication and brute-force alert detection
 - Security event correlation
 - Real-time File Integrity Monitoring
+- Security Configuration Assessment (SCA)
+- CIS Benchmark-based security assessment
+- Linux SSH configuration hardening
+- Security misconfiguration identification and remediation
+- Security compliance verification
 - Threat detection and security alert investigation
 - MITRE ATT&CK mapping
 - SOC incident analysis and documentation
@@ -119,7 +193,12 @@ Each investigation report includes:
 
 The following capabilities are planned for future development:
 
-- [ ] Security Configuration Assessment (SCA)
+- [x] SIEM deployment and agent integration
+- [x] SSH authentication and brute-force alert detection
+- [x] Real-time File Integrity Monitoring
+- [x] Security Configuration Assessment (SCA) implementation
+- [x] SSH root login security hardening
+- [ ] Additional CIS Benchmark remediation
 - [ ] Vulnerability detection and analysis
 - [ ] Custom Wazuh detection rules
 - [ ] Additional security attack simulations
@@ -129,6 +208,10 @@ The following capabilities are planned for future development:
 
 ## Project Status
 
-**In Progress — Core SIEM deployment, SSH authentication and brute-force alert detection, File Integrity Monitoring, and initial SOC investigations completed.**
+**In Progress — Core SIEM deployment, SSH authentication monitoring, brute-force alert detection, File Integrity Monitoring, Security Configuration Assessment, and initial Linux security hardening completed.**
 
-This project is an educational cybersecurity laboratory. All simulations are performed within an authorized testing environment.
+The next phase focuses on vulnerability detection and analysis, followed by custom detection rules and advanced SOC monitoring capabilities.
+
+---
+
+**Disclaimer:** This project is an educational cybersecurity laboratory. All security simulations and configuration changes are performed within an authorized testing environment.
