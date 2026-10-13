@@ -121,10 +121,15 @@ The updated assessment confirmed:
 The overall compliance score increased by three percentage points between assessments. Multiple checks changed status during this period, so the full improvement cannot be attributed solely to this SSH remediation.
 
 ## 7. Evidence
+### Failed SCA Validation
+
+![Wazuh SCA Check 35659 Passed](../../screenshots/security-configuration-assessment/35659_failed.png)
+
+The screenshot confirms that Wazuh SCA Check 35659 was marked **Failed** following remediation.
 
 ### Successful SCA Validation
 
-![Wazuh SCA Check 35659 Passed](../../screenshots/security-configuration-assessment/35659.png)
+![Wazuh SCA Check 35659 Passed](../../screenshots/security-configuration-assessment/35659_passed.png)
 
 The screenshot confirms that Wazuh SCA Check 35659 was marked **Passed** following remediation.
 
