@@ -4,19 +4,19 @@
 
 ## Project Overview
 
-This project demonstrates the deployment and operation of a Wazuh-based SIEM environment for centralized security monitoring, threat detection, event correlation, security configuration assessment, and SOC investigation.
+This project demonstrates the deployment and operation of a Wazuh-based SIEM environment for centralized security monitoring, threat detection, event correlation, File Integrity Monitoring (FIM), Security Configuration Assessment (SCA), vulnerability detection, and SOC investigation.
 
-The laboratory simulates SSH authentication anomalies, repeated SSH activity triggering brute-force alerts, and file integrity changes on an Ubuntu endpoint. It also incorporates Security Configuration Assessment (SCA) to identify and remediate Linux security misconfigurations based on CIS benchmarks.
+The laboratory simulates SSH authentication anomalies, repeated SSH activity triggering brute-force alerts, and file integrity changes on an Ubuntu endpoint. It also incorporates CIS Benchmark-based security assessments, Linux system hardening, and CVE vulnerability analysis.
 
-Security events and configuration assessment results are collected, analyzed, and investigated through the Wazuh Dashboard.
+Security events, configuration assessment results, and vulnerability findings are collected and investigated through the Wazuh Dashboard.
 
-The project focuses on developing practical skills in SOC operations, Blue Team security, threat detection, Linux system hardening, and incident response.
+The project focuses on developing practical skills in SOC operations, Blue Team security, threat detection, vulnerability management, Linux security hardening, and incident response.
 
 ## Technologies Used
 
 | Technology | Purpose |
 |---|---|
-| Wazuh 4.14.8 | SIEM, security monitoring, and configuration assessment |
+| Wazuh 4.14.8 | SIEM, security monitoring, and vulnerability detection |
 | Ubuntu Server 24.04 | Monitored endpoint |
 | WSL2 Ubuntu | Wazuh central server |
 | Oracle VirtualBox | Endpoint virtualization |
@@ -24,6 +24,7 @@ The project focuses on developing practical skills in SOC operations, Blue Team 
 | Linux SSH | Authentication monitoring and SSH hardening |
 | Wazuh Syscheck | Real-time File Integrity Monitoring |
 | Wazuh SCA | Security configuration assessment |
+| Wazuh Vulnerability Detection | CVE identification and vulnerability analysis |
 | CIS Benchmarks | Linux security configuration compliance |
 | MITRE ATT&CK | Threat detection technique mapping |
 
@@ -37,7 +38,7 @@ The laboratory consists of three main environments:
 
 The Wazuh Agent collects security events from the Ubuntu endpoint and forwards them to the Wazuh Manager for analysis and alert generation.
 
-The agent also performs Security Configuration Assessment scans to evaluate the endpoint against security configuration benchmarks.
+The agent also performs Security Configuration Assessment scans and collects software inventory information used for vulnerability detection.
 
 [View Architecture Documentation](docs/architecture.md)
 
@@ -144,6 +145,84 @@ Other SCA checks also changed status during this period; therefore, the full sco
 
 ![Wazuh SCA SSH Root Login Hardening](screenshots/security-configuration-assessment/35659_passed.png)
 
+## Vulnerability Detection and Analysis
+
+Implemented Wazuh Vulnerability Detection to identify and investigate reported software vulnerabilities affecting the monitored Ubuntu Server endpoint.
+
+The vulnerability inventory provides information about detected CVEs, severity ratings, affected software packages, and vulnerability references.
+
+### Initial Vulnerability Detection Results
+
+Wazuh reported the following findings for `ubuntu-soc-agent` (Agent ID: 001):
+
+| Severity | Reported Findings |
+|---|---:|
+| Critical | 242 |
+| High | 1,370 |
+| Medium | 546 |
+| Low | 49 |
+| Pending Evaluation | 1,604 |
+| **Total Records** | **3,811** |
+
+These values represent vulnerability records reported by Wazuh at the time of assessment. They do not independently establish exploitability or indicate that every finding requires the same remediation.
+
+### CVE-2021-3773 — Critical Vulnerability Investigation
+
+Investigated a Critical vulnerability reported by Wazuh against the Ubuntu Server Linux kernel.
+
+**Vulnerability Details:**
+
+| Field | Result |
+|---|---|
+| CVE ID | CVE-2021-3773 |
+| Reported Severity | Critical |
+| CVSS v3.1 Score | 9.8 |
+| Affected Component | Linux Kernel — Netfilter |
+| Running Kernel | 6.8.0-146-generic |
+| Installed Kernel Package Version | 6.8.0-146.146 |
+| Ubuntu Advisory Status | Ignored — no upstream fix |
+| Investigation Status | Initial Triage Completed — Monitoring Required |
+
+**Investigation Activities:**
+
+1. Identified CVE-2021-3773 through Wazuh Vulnerability Detection.
+2. Verified the running Linux kernel using `uname -r`.
+3. Confirmed the installed kernel package version using `dpkg-query`.
+4. Reviewed the official Ubuntu security advisory for vulnerability status and remediation information.
+5. Investigated potential exposure by checking OpenVPN package installation, running processes, and executable availability.
+6. Documented the findings and recommended continued vulnerability monitoring.
+
+**Exposure Assessment Results:**
+
+| Verification | Result |
+|---|---|
+| OpenVPN package installed | No |
+| OpenVPN process detected | No |
+| OpenVPN executable found | No |
+| Vulnerability reported by Wazuh | Yes |
+| Exploitability confirmed | No |
+| Remediation verified | No |
+
+**SOC Assessment:**
+
+The reported OpenVPN-related information-disclosure scenario appears less applicable to the current laboratory because OpenVPN was not detected on the monitored endpoint.
+
+However, the absence of OpenVPN does not prove that the underlying Linux kernel vulnerability is fixed or that all potential exposure has been eliminated.
+
+The finding remains under monitoring rather than being classified as remediated or a confirmed false positive.
+
+**Security Investigation:**
+
+[INC-005 — CVE-2021-3773 Vulnerability Investigation](docs/investigations/INC-005-cve-2021-3773-vulnerability-analysis.md)
+
+**Vulnerability Evidence:**
+
+![CVE-2021-3773 Vulnerability Details](screenshots/vulnerability-detection/cve-2021-3773-wazuh-details.png)
+
+**Official Reference:**
+
+[Ubuntu Security — CVE-2021-3773](https://ubuntu.com/security/CVE-2021-3773)
+
 ## SOC Investigation Reports
 
 | Investigation ID | Investigation | Status |
@@ -152,15 +231,16 @@ Other SCA checks also changed status during this period; therefore, the full sco
 | INC-002 | SSH Brute-Force Alert Investigation | Closed — Authorized Test |
 | INC-003 | File Integrity Monitoring | Closed — Authorized Test |
 | INC-004 | SSH Root Login Security Hardening | Closed — Remediation Verified |
+| INC-005 | CVE-2021-3773 Vulnerability Investigation | Initial Triage Completed — Monitoring Required |
 
 Each investigation report includes relevant information such as:
 
 - Security investigation objectives and methodology.
-- Relevant Wazuh detection rules or SCA checks.
-- Security event or configuration analysis.
+- Relevant Wazuh detection rules, SCA checks, or vulnerability findings.
+- Security event, configuration, or vulnerability analysis.
 - Investigation findings and validation results.
 - Supporting screenshots and technical evidence.
-- Investigation outcome and security recommendations.
+- Investigation outcomes and security recommendations.
 
 ## Documentation
 
@@ -170,6 +250,7 @@ Each investigation report includes relevant information such as:
 - [INC-002: SSH Brute-Force Detection](docs/investigations/INC-002-ssh-brute-force.md)
 - [INC-003: File Integrity Monitoring](docs/investigations/INC-003-file-integrity-monitoring.md)
 - [INC-004: SSH Root Login Security Hardening](docs/investigations/INC-004-ssh-root-login-hardening.md)
+- [INC-005: CVE-2021-3773 Vulnerability Investigation](docs/investigations/INC-005-cve-2021-3773-vulnerability-analysis.md)
 
 ## Skills Demonstrated
 
@@ -184,6 +265,10 @@ Each investigation report includes relevant information such as:
 - Linux SSH configuration hardening
 - Security misconfiguration identification and remediation
 - Security compliance verification
+- Vulnerability detection and CVE analysis
+- Vulnerability triage and risk assessment
+- Linux kernel and software package verification
+- Vendor security advisory analysis
 - Threat detection and security alert investigation
 - MITRE ATT&CK mapping
 - SOC incident analysis and documentation
@@ -198,8 +283,9 @@ The following capabilities are planned for future development:
 - [x] Real-time File Integrity Monitoring
 - [x] Security Configuration Assessment (SCA) implementation
 - [x] SSH root login security hardening
+- [x] Initial vulnerability detection and CVE investigation
 - [ ] Additional CIS Benchmark remediation
-- [ ] Vulnerability detection and analysis
+- [ ] Additional CVE investigations and remediation validation
 - [ ] Custom Wazuh detection rules
 - [ ] Additional security attack simulations
 - [ ] Alert tuning and false-positive analysis
@@ -208,9 +294,11 @@ The following capabilities are planned for future development:
 
 ## Project Status
 
-**In Progress — Core SIEM deployment, SSH authentication monitoring, brute-force alert detection, File Integrity Monitoring, Security Configuration Assessment, and initial Linux security hardening completed.**
+**In Progress — Core SIEM deployment, SSH authentication monitoring, brute-force alert detection, File Integrity Monitoring, Security Configuration Assessment, Linux security hardening, and initial vulnerability investigation completed.**
 
-The next phase focuses on vulnerability detection and analysis, followed by custom detection rules and advanced SOC monitoring capabilities.
+Five security investigations have been documented with technical findings and supporting evidence.
+
+The next development phase focuses on custom Wazuh detection rules, followed by additional security simulations, alert tuning, and advanced SOC monitoring capabilities.
 
 ---
 
