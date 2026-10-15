@@ -4,9 +4,9 @@
 
 ## Project Overview
 
-This project demonstrates the deployment and operation of a Wazuh-based SIEM environment for centralized security monitoring, threat detection, event correlation, File Integrity Monitoring (FIM), Security Configuration Assessment (SCA), vulnerability detection, and SOC investigation.
+This project demonstrates the deployment and operation of a Wazuh-based SIEM environment for centralized security monitoring, threat detection, event correlation, alert tuning, File Integrity Monitoring (FIM), Security Configuration Assessment (SCA), vulnerability detection, and SOC investigation.
 
-The laboratory simulates SSH authentication anomalies, repeated SSH activity triggering brute-force alerts, failed root SSH authentication detected by a custom rule, and file integrity changes on an Ubuntu endpoint. It also incorporates CIS Benchmark-based security assessments, Linux system hardening, and CVE vulnerability analysis.
+The laboratory simulates SSH authentication anomalies, repeated SSH activity triggering brute-force alerts, failed root SSH authentication detected by a tuned custom rule, and file integrity changes on an Ubuntu endpoint. It also incorporates CIS Benchmark-based security assessments, Linux system hardening, and CVE vulnerability analysis.
 
 Security events, configuration assessment results, and vulnerability findings are collected and investigated through the Wazuh Dashboard.
 
@@ -73,14 +73,14 @@ Conducted controlled SSH authentication simulations using a nonexistent username
 
 ### Custom SSH Root Authentication Detection
 
-Developed and deployed **custom Wazuh Rule 100002 (Level 10)** to detect failed SSH password authentication attempts targeting the `root` account. The rule was added to `/var/ossec/etc/rules/local_rules.xml` and validated using `wazuh-analysisd -t` and `wazuh-logtest` before live deployment.
+Developed and deployed **custom Wazuh Rule 100002 (Level 10)** to detect failed SSH password and public-key authentication attempts targeting the `root` account. The rule was added to `/var/ossec/etc/rules/local_rules.xml`, tuned to reduce a demonstrated false-positive scenario, and validated using `wazuh-analysisd -t` and `wazuh-logtest` before live deployment.
 
 **Custom Rule:**
 
 ```xml
 <rule id="100002" level="10">
   <if_sid>5716</if_sid>
-  <match>for root from</match>
+  <user type="pcre2">^root$</user>
   <description>Custom SOC Alert: Failed SSH authentication attempt for root account.</description>
   <group>authentication_failed,ssh_root_attempt,</group>
 </rule>
@@ -97,6 +97,26 @@ Developed and deployed **custom Wazuh Rule 100002 (Level 10)** to detect failed 
 **SOC Investigation:**
 
 [INC-006 — Custom SSH Root Authentication Detection](docs/investigations/INC-006-custom-ssh-root-detection.md)
+
+### SSH Root Alert Tuning and False-Positive Analysis
+
+Improved **Rule 100002** by replacing the original substring match (`<match>for root from</match>`) with an exact username match (`<user type="pcre2">^root$</user>`). The original rule generated a Level 10 alert for a synthetic SSH message containing `root frombackup`, even though Wazuh did not decode a destination username.
+
+**Validation Results:**
+
+| Test Scenario | Observed Result |
+|---|---|
+| Failed root password authentication (Logtest) | Rule 100002 — Level 10 |
+| Failed root public-key authentication (Logtest) | Rule 100002 — Level 10 |
+| Synthetic false-positive (`root frombackup`) | Rule 5760 — Level 5; Rule 100002 did not trigger |
+| Live failed root password authentication after deployment | Rule 100002 — Level 10 |
+
+The tuned rule passed configuration validation and was deployed after testing. A new live alert was confirmed on **2026-10-15 at 18:17:45 (+05:30)** from `ubuntu-soc-agent`, with source IP `192.168.56.1` and destination user `root`.
+
+**Alert-Tuning Documentation:**
+
+[SSH Root Alert Tuning and False-Positive Analysis](docs/alert-tuning/SSH-Root-Alert-Tuning.md)
+
 
 **Dashboard Evidence:**
 
@@ -286,6 +306,7 @@ Each investigation report includes relevant information such as:
 - [INC-004: SSH Root Login Security Hardening](docs/investigations/INC-004-ssh-root-login-hardening.md)
 - [INC-005: CVE-2021-3773 Vulnerability Investigation](docs/investigations/INC-005-cve-2021-3773-vulnerability-analysis.md)
 - [INC-006: Custom SSH Root Authentication Detection](docs/investigations/INC-006-custom-ssh-root-detection.md)
+- [SSH Root Alert Tuning and False-Positive Analysis](docs/alert-tuning/SSH-Root-Alert-Tuning.md)
 
 ## Skills Demonstrated
 
@@ -295,6 +316,8 @@ Each investigation report includes relevant information such as:
 - SSH authentication and brute-force alert detection
 - Security event correlation
 - Custom Wazuh detection rule development and validation
+- SIEM alert tuning and false-positive analysis
+- PCRE2-based exact username matching for SSH alerts
 - Wazuh Logtest testing and live alert verification
 - Real-time File Integrity Monitoring
 - Security Configuration Assessment (SCA)
@@ -326,17 +349,17 @@ The following capabilities are planned for future development:
 - [x] First custom Wazuh detection rule (Rule 100002)
 - [ ] Additional custom detection rules and coverage
 - [ ] Additional security attack simulations
-- [ ] Alert tuning and false-positive analysis
+- [x] Alert tuning and false-positive analysis (Rule 100002)
 - [ ] Active Response testing
 - [ ] Final SOC monitoring dashboard review
 
 ## Project Status
 
-**In Progress — Core SIEM deployment, SSH authentication monitoring, brute-force alert detection, File Integrity Monitoring, Security Configuration Assessment, Linux security hardening, initial vulnerability investigation, and first custom detection rule completed.**
+**In Progress — Core SIEM deployment, SSH authentication monitoring, brute-force alert detection, File Integrity Monitoring, Security Configuration Assessment, Linux security hardening, initial vulnerability investigation, custom detection rule deployment, and SSH alert tuning completed.**
 
 Six security investigations have been documented with technical findings and supporting evidence.
 
-The next development phase focuses on additional custom Wazuh detection rules, alert tuning, false-positive analysis, and advanced SOC monitoring capabilities.
+The next development phase focuses on controlled Active Response testing, followed by additional detection coverage, security hardening, and a final SOC monitoring dashboard review.
 
 ---
 
