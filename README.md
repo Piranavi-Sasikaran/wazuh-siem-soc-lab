@@ -6,7 +6,7 @@
 
 This project demonstrates the deployment and operation of a Wazuh-based SIEM environment for centralized security monitoring, threat detection, event correlation, File Integrity Monitoring (FIM), Security Configuration Assessment (SCA), vulnerability detection, and SOC investigation.
 
-The laboratory simulates SSH authentication anomalies, repeated SSH activity triggering brute-force alerts, and file integrity changes on an Ubuntu endpoint. It also incorporates CIS Benchmark-based security assessments, Linux system hardening, and CVE vulnerability analysis.
+The laboratory simulates SSH authentication anomalies, repeated SSH activity triggering brute-force alerts, failed root SSH authentication detected by a custom rule, and file integrity changes on an Ubuntu endpoint. It also incorporates CIS Benchmark-based security assessments, Linux system hardening, and CVE vulnerability analysis.
 
 Security events, configuration assessment results, and vulnerability findings are collected and investigated through the Wazuh Dashboard.
 
@@ -23,6 +23,7 @@ The project focuses on developing practical skills in SOC operations, Blue Team 
 | Windows 11 | Host operating system |
 | Linux SSH | Authentication monitoring and SSH hardening |
 | Wazuh Syscheck | Real-time File Integrity Monitoring |
+| Wazuh Custom Rules and Logtest | Detection engineering, rule testing, and validation |
 | Wazuh SCA | Security configuration assessment |
 | Wazuh Vulnerability Detection | CVE identification and vulnerability analysis |
 | CIS Benchmarks | Linux security configuration compliance |
@@ -48,6 +49,7 @@ The agent also performs Security Configuration Assessment scans and collects sof
 |---|---|---|---|
 | SSH Invalid-User Detection | 5710 | Level 5 | Completed |
 | SSH Brute-Force Alert Detection | 5712 | Level 10 | Completed |
+| Custom Failed Root SSH Authentication Detection | 100002 | Level 10 | Completed |
 | File Creation Detection | 554 | Level 5 | Completed |
 | File Modification Detection | 550 | Level 7 | Completed |
 | File Deletion Detection | 553 | Level 7 | Completed |
@@ -68,6 +70,37 @@ Conducted controlled SSH authentication simulations using a nonexistent username
 
 - [INC-001 — SSH Invalid User Detection](docs/investigations/INC-001-ssh-invalid-user.md)
 - [INC-002 — SSH Brute-Force Detection](docs/investigations/INC-002-ssh-brute-force.md)
+
+### Custom SSH Root Authentication Detection
+
+Developed and deployed **custom Wazuh Rule 100002 (Level 10)** to detect failed SSH password authentication attempts targeting the `root` account. The rule was added to `/var/ossec/etc/rules/local_rules.xml` and validated using `wazuh-analysisd -t` and `wazuh-logtest` before live deployment.
+
+**Custom Rule:**
+
+```xml
+<rule id="100002" level="10">
+  <if_sid>5716</if_sid>
+  <match>for root from</match>
+  <description>Custom SOC Alert: Failed SSH authentication attempt for root account.</description>
+  <group>authentication_failed,ssh_root_attempt,</group>
+</rule>
+```
+
+**Live Detection Results:**
+
+- Generated a controlled failed root SSH password authentication attempt from the Windows host to the Ubuntu VM.
+- Verified that `ubuntu-soc-agent` forwarded the SSH event from `journald` to Wazuh Manager.
+- Confirmed that Rule **100002** generated a **Level 10** alert in both `alerts.json` and the Wazuh Dashboard.
+- Investigated the source IP `192.168.56.1`, source port `63863`, and destination user `root`.
+- Confirmed that root SSH login remained denied; **no successful root login or compromise was observed**.
+
+**SOC Investigation:**
+
+[INC-006 — Custom SSH Root Authentication Detection](docs/investigations/INC-006-custom-ssh-root-detection.md)
+
+**Dashboard Evidence:**
+
+![Custom SSH Root Authentication Detection — Rule 100002](https://raw.githubusercontent.com/Piranavi-Sasikaran/wazuh-siem-soc-lab/main/screenshots/ssh-detection/100002.png)
 
 ### File Integrity Monitoring (FIM)
 
@@ -232,6 +265,7 @@ The finding remains under monitoring rather than being classified as remediated 
 | INC-003 | File Integrity Monitoring | Closed — Authorized Test |
 | INC-004 | SSH Root Login Security Hardening | Closed — Remediation Verified |
 | INC-005 | CVE-2021-3773 Vulnerability Investigation | Initial Triage Completed — Monitoring Required |
+| INC-006 | Custom SSH Root Authentication Detection | Closed — Authorized Test |
 
 Each investigation report includes relevant information such as:
 
@@ -251,6 +285,7 @@ Each investigation report includes relevant information such as:
 - [INC-003: File Integrity Monitoring](docs/investigations/INC-003-file-integrity-monitoring.md)
 - [INC-004: SSH Root Login Security Hardening](docs/investigations/INC-004-ssh-root-login-hardening.md)
 - [INC-005: CVE-2021-3773 Vulnerability Investigation](docs/investigations/INC-005-cve-2021-3773-vulnerability-analysis.md)
+- [INC-006: Custom SSH Root Authentication Detection](docs/investigations/INC-006-custom-ssh-root-detection.md)
 
 ## Skills Demonstrated
 
@@ -259,6 +294,8 @@ Each investigation report includes relevant information such as:
 - Centralized security log collection and analysis
 - SSH authentication and brute-force alert detection
 - Security event correlation
+- Custom Wazuh detection rule development and validation
+- Wazuh Logtest testing and live alert verification
 - Real-time File Integrity Monitoring
 - Security Configuration Assessment (SCA)
 - CIS Benchmark-based security assessment
@@ -286,7 +323,8 @@ The following capabilities are planned for future development:
 - [x] Initial vulnerability detection and CVE investigation
 - [ ] Additional CIS Benchmark remediation
 - [ ] Additional CVE investigations and remediation validation
-- [ ] Custom Wazuh detection rules
+- [x] First custom Wazuh detection rule (Rule 100002)
+- [ ] Additional custom detection rules and coverage
 - [ ] Additional security attack simulations
 - [ ] Alert tuning and false-positive analysis
 - [ ] Active Response testing
@@ -294,11 +332,11 @@ The following capabilities are planned for future development:
 
 ## Project Status
 
-**In Progress — Core SIEM deployment, SSH authentication monitoring, brute-force alert detection, File Integrity Monitoring, Security Configuration Assessment, Linux security hardening, and initial vulnerability investigation completed.**
+**In Progress — Core SIEM deployment, SSH authentication monitoring, brute-force alert detection, File Integrity Monitoring, Security Configuration Assessment, Linux security hardening, initial vulnerability investigation, and first custom detection rule completed.**
 
-Five security investigations have been documented with technical findings and supporting evidence.
+Six security investigations have been documented with technical findings and supporting evidence.
 
-The next development phase focuses on custom Wazuh detection rules, followed by additional security simulations, alert tuning, and advanced SOC monitoring capabilities.
+The next development phase focuses on additional custom Wazuh detection rules, alert tuning, false-positive analysis, and advanced SOC monitoring capabilities.
 
 ---
 
