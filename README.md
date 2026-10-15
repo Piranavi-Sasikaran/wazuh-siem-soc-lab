@@ -4,9 +4,9 @@
 
 ## Project Overview
 
-This project demonstrates the deployment and operation of a Wazuh-based SIEM environment for centralized security monitoring, threat detection, event correlation, alert tuning, File Integrity Monitoring (FIM), Security Configuration Assessment (SCA), vulnerability detection, and SOC investigation.
+This project demonstrates the deployment and operation of a Wazuh-based SIEM environment for centralized security monitoring, threat detection, event correlation, alert tuning, automated Active Response, File Integrity Monitoring (FIM), Security Configuration Assessment (SCA), vulnerability detection, and SOC investigation.
 
-The laboratory simulates SSH authentication anomalies, repeated SSH activity triggering brute-force alerts, failed root SSH authentication detected by a tuned custom rule, and file integrity changes on an Ubuntu endpoint. It also incorporates CIS Benchmark-based security assessments, Linux system hardening, and CVE vulnerability analysis.
+The laboratory simulates SSH authentication anomalies, repeated SSH activity triggering brute-force alerts, failed root SSH authentication detected by a tuned custom rule, and file integrity changes on an Ubuntu endpoint. It also incorporates controlled automated firewall containment, CIS Benchmark-based security assessments, Linux system hardening, and CVE vulnerability analysis.
 
 Security events, configuration assessment results, and vulnerability findings are collected and investigated through the Wazuh Dashboard.
 
@@ -24,6 +24,7 @@ The project focuses on developing practical skills in SOC operations, Blue Team 
 | Linux SSH | Authentication monitoring and SSH hardening |
 | Wazuh Syscheck | Real-time File Integrity Monitoring |
 | Wazuh Custom Rules and Logtest | Detection engineering, rule testing, and validation |
+| Wazuh Active Response and iptables | Automated threat containment and timeout-based firewall rule removal |
 | Wazuh SCA | Security configuration assessment |
 | Wazuh Vulnerability Detection | CVE identification and vulnerability analysis |
 | CIS Benchmarks | Linux security configuration compliance |
@@ -50,6 +51,7 @@ The agent also performs Security Configuration Assessment scans and collects sof
 | SSH Invalid-User Detection | 5710 | Level 5 | Completed |
 | SSH Brute-Force Alert Detection | 5712 | Level 10 | Completed |
 | Custom Failed Root SSH Authentication Detection | 100002 | Level 10 | Completed |
+| Controlled SSH Active Response Detection | 100003 | Level 5 | Completed |
 | File Creation Detection | 554 | Level 5 | Completed |
 | File Modification Detection | 550 | Level 7 | Completed |
 | File Deletion Detection | 553 | Level 7 | Completed |
@@ -121,6 +123,25 @@ The tuned rule passed configuration validation and was deployed after testing. A
 **Dashboard Evidence:**
 
 ![Custom SSH Root Authentication Detection — Rule 100002](https://raw.githubusercontent.com/Piranavi-Sasikaran/wazuh-siem-soc-lab/main/screenshots/ssh-detection/100002.png)
+
+### Automated Threat Containment — Wazuh Active Response
+
+Implemented and validated **Wazuh Active Response** using a dedicated custom detection rule and temporary firewall blocking on the monitored Ubuntu endpoint.
+
+**Implementation:**
+
+- Developed **Rule 100003 (Level 5)** to match simulated failed SSH authentication for user `labtest` from the documentation-only source IP `192.0.2.10`.
+- Verified the rule with `wazuh-logtest`, including a negative test using a different source IP.
+- Generated a synthetic SSH log with `logger`; the Ubuntu agent collected it through `journald` and forwarded it to the Wazuh Manager.
+- Configured `firewall-drop` to execute on **Agent 001** only when Rule 100003 triggers, with a **60-second timeout**.
+- Confirmed that `iptables` inserted a `DROP` rule for `192.0.2.10` and automatically removed it after approximately 60 seconds.
+- Verified the response lifecycle in `/var/ossec/logs/active-responses.log`, including `add` and `delete` commands.
+
+**Observed result:** Automated containment and timeout-based removal succeeded in the controlled lab. The SSH event was **simulated**, not an actual intrusion, and the configuration is a test-specific proof of concept rather than a production blocking policy.
+
+**Technical documentation:** [Wazuh Active Response Implementation](docs/active-response/Wazuh-Active-Response.md)
+
+**Evidence:** [Active Response Test Results](evidence/active-response/README.md) · [Sanitized Execution Evidence](evidence/active-response/active-response-evidence.txt)
 
 ### File Integrity Monitoring (FIM)
 
@@ -307,6 +328,8 @@ Each investigation report includes relevant information such as:
 - [INC-005: CVE-2021-3773 Vulnerability Investigation](docs/investigations/INC-005-cve-2021-3773-vulnerability-analysis.md)
 - [INC-006: Custom SSH Root Authentication Detection](docs/investigations/INC-006-custom-ssh-root-detection.md)
 - [SSH Root Alert Tuning and False-Positive Analysis](docs/alert-tuning/SSH-Root-Alert-Tuning.md)
+- [Wazuh Active Response Implementation](docs/active-response/Wazuh-Active-Response.md)
+- [Active Response Evidence](evidence/active-response/README.md)
 
 ## Skills Demonstrated
 
@@ -316,6 +339,9 @@ Each investigation report includes relevant information such as:
 - SSH authentication and brute-force alert detection
 - Security event correlation
 - Custom Wazuh detection rule development and validation
+- Automated threat containment with Wazuh Active Response and `firewall-drop`
+- Linux `iptables` verification and timeout-based rule removal
+- Controlled synthetic security event generation and response validation
 - SIEM alert tuning and false-positive analysis
 - PCRE2-based exact username matching for SSH alerts
 - Wazuh Logtest testing and live alert verification
@@ -347,19 +373,20 @@ The following capabilities are planned for future development:
 - [ ] Additional CIS Benchmark remediation
 - [ ] Additional CVE investigations and remediation validation
 - [x] First custom Wazuh detection rule (Rule 100002)
-- [ ] Additional custom detection rules and coverage
+- [x] Additional custom detection rule (Rule 100003 — Active Response lab)
+- [ ] Further custom detection rules and coverage
 - [ ] Additional security attack simulations
 - [x] Alert tuning and false-positive analysis (Rule 100002)
-- [ ] Active Response testing
+- [x] Active Response testing (Rule 100003; 60-second temporary IP block)
 - [ ] Final SOC monitoring dashboard review
 
 ## Project Status
 
-**In Progress — Core SIEM deployment, SSH authentication monitoring, brute-force alert detection, File Integrity Monitoring, Security Configuration Assessment, Linux security hardening, initial vulnerability investigation, custom detection rule deployment, and SSH alert tuning completed.**
+**In Progress — Core SIEM deployment, SSH authentication monitoring, brute-force alert detection, File Integrity Monitoring, Security Configuration Assessment, Linux security hardening, initial vulnerability investigation, custom detection rule deployment, SSH alert tuning, and controlled Active Response testing completed.**
 
 Six security investigations have been documented with technical findings and supporting evidence.
 
-The next development phase focuses on controlled Active Response testing, followed by additional detection coverage, security hardening, and a final SOC monitoring dashboard review.
+The next development phase focuses on additional detection coverage, security hardening, and a final SOC monitoring dashboard review.
 
 ---
 
