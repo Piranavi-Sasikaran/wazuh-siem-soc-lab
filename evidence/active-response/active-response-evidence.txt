@@ -1,0 +1,51 @@
+# Wazuh Active Response — Sanitized Evidence
+
+**Experiment:** Automated SSH threat containment  
+**Detection Rule:** 100003  
+**Agent:** 001 (Ubuntu SOC Lab)  
+**Test Source IP:** 192.0.2.10  
+**Response:** firewall-drop  
+**Configured Timeout:** 60 seconds
+
+## Active Response Execution Log
+
+```text
+2026/10/15 15:55:40 active-response/bin/firewall-drop: Starting
+2026/10/15 15:55:40 command: add
+2026/10/15 15:55:40 source_ip: 192.0.2.10
+2026/10/15 15:55:40 rule_id: 100003
+2026/10/15 15:55:40 command: check_keys
+2026/10/15 15:55:40 command: continue
+2026/10/15 15:55:40 active-response/bin/firewall-drop: Ended
+
+2026/10/15 15:56:41 active-response/bin/firewall-drop: Starting
+2026/10/15 15:56:41 command: delete
+2026/10/15 15:56:41 source_ip: 192.0.2.10
+2026/10/15 15:56:41 active-response/bin/firewall-drop: Ended
+```
+
+## Firewall Verification
+
+**During Active Response:**
+
+```text
+Chain INPUT (policy ACCEPT)
+num  target  prot opt source       destination
+1    DROP    0    --  192.0.2.10   0.0.0.0/0
+```
+
+**After the timeout:**
+
+```text
+Chain INPUT (policy ACCEPT)
+num  target  prot opt source       destination
+```
+
+## Result
+
+- Custom detection rule 100003 generated an alert.
+- Wazuh executed firewall-drop on Agent 001.
+- The test IP was automatically blocked.
+- The firewall rule was removed after approximately 60 seconds.
+
+**Testing note:** The SSH authentication failure was simulated using `logger`. The log entries above are a sanitized, abbreviated representation of the original execution log, not an unmodified raw export.
