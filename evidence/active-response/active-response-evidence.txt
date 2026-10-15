@@ -1,0 +1,61 @@
+==================================================
+WAZUH ACTIVE RESPONSE - EXECUTION EVIDENCE
+==================================================
+
+Detection Rule : 100003
+Agent ID       : 001
+Response       : firewall-drop
+Test Source IP : 192.0.2.10
+Timeout        : 60 seconds
+
+--------------------------------------------------
+ACTIVE RESPONSE LOGS
+--------------------------------------------------
+
+2026/10/15 15:55:40 active-response/bin/firewall-drop: Starting
+2026/10/15 15:55:40 command: add
+2026/10/15 15:55:40 source_ip: 192.0.2.10
+2026/10/15 15:55:40 rule_id: 100003
+2026/10/15 15:55:40 command: check_keys
+2026/10/15 15:55:40 command: continue
+2026/10/15 15:55:40 active-response/bin/firewall-drop: Ended
+
+2026/10/15 15:56:41 active-response/bin/firewall-drop: Starting
+2026/10/15 15:56:41 command: delete
+2026/10/15 15:56:41 source_ip: 192.0.2.10
+2026/10/15 15:56:41 active-response/bin/firewall-drop: Ended
+
+--------------------------------------------------
+FIREWALL STATUS - DURING BLOCKING
+--------------------------------------------------
+
+Chain INPUT (policy ACCEPT)
+num  target  prot opt source       destination
+1    DROP    0    --  192.0.2.10   0.0.0.0/0
+
+--------------------------------------------------
+FIREWALL STATUS - AFTER 60 SECONDS
+--------------------------------------------------
+
+Chain INPUT (policy ACCEPT)
+num  target  prot opt source       destination
+
+--------------------------------------------------
+RESULT
+--------------------------------------------------
+
+[PASS] Custom detection rule 100003 triggered.
+[PASS] Active Response executed firewall-drop.
+[PASS] Source IP 192.0.2.10 was blocked.
+[PASS] Firewall rule was automatically removed.
+[PASS] Automatic unblocking verified.
+
+--------------------------------------------------
+NOTE
+--------------------------------------------------
+
+The SSH authentication event was simulated using logger.
+This file is a sanitized, summarized evidence record.
+It is not an unmodified raw Wazuh log export.
+
+==================================================
