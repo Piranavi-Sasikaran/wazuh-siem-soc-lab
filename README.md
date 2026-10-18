@@ -317,6 +317,30 @@ Each investigation report includes relevant information such as:
 - Supporting screenshots and technical evidence.
 - Investigation outcomes and security recommendations.
 
+## SOC Monitoring Dashboard Review
+
+Completed a security monitoring review using the Wazuh Threat Hunting Dashboard, focusing on alert trends, high-severity detections, and MITRE ATT&CK mappings.
+
+**Monitoring Results:**
+- Monitored endpoint: `ubuntu-soc-agent`
+- Monitoring period: Last 30 days (September 17–October 17, 2026)
+- Total security alerts: **800**
+- High-severity alerts (Level 10+): **3**
+- SSH brute-force alerts (Rule 5712): **1**
+- Custom failed root SSH alerts (Rule 100002): **2**
+
+**Key Activities:**
+- Filtered security alerts by monitored endpoint.
+- Investigated high-severity SSH authentication alerts.
+- Reviewed historical alert trends and severity distribution.
+- Analyzed MITRE ATT&CK mappings.
+- Captured and documented SOC monitoring evidence.
+
+
+**Evidence:** [SOC Monitoring Dashboard Screenshot](screenshots/soc-monitoring/soc-monitoring-dashboard.png)
+
+![Wazuh SOC Monitoring Dashboard](screenshots/soc-monitoring/soc-monitoring-dashboard.png)
+
 ## Documentation
 
 - [System Architecture](docs/architecture.md)
@@ -330,6 +354,8 @@ Each investigation report includes relevant information such as:
 - [SSH Root Alert Tuning and False-Positive Analysis](docs/alert-tuning/SSH-Root-Alert-Tuning.md)
 - [Wazuh Active Response Implementation](docs/active-response/Wazuh-Active-Response.md)
 - [Active Response Evidence](evidence/active-response/README.md)
+- [SOC Monitoring Dashboard Review](docs/soc-monitoring/SOC-Monitoring-Dashboard.md)
+
 
 ## Skills Demonstrated
 
@@ -378,7 +404,7 @@ The following capabilities are planned for future development:
 - [ ] Additional security attack simulations
 - [x] Alert tuning and false-positive analysis (Rule 100002)
 - [x] Active Response testing (Rule 100003; 60-second temporary IP block)
-- [ ] Final SOC monitoring dashboard review
+- [x] Final SOC monitoring dashboard review
 
 ## Project Status
 
