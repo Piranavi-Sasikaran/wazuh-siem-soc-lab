@@ -55,6 +55,7 @@ The agent also performs Security Configuration Assessment scans and collects sof
 | File Creation Detection | 554 | Level 5 | Completed |
 | File Modification Detection | 550 | Level 7 | Completed |
 | File Deletion Detection | 553 | Level 7 | Completed |
+| Failed Sudo Authentication | 5404 | Level 10 | Completed |
 
 ### SSH Authentication & Brute-Force Detection
 
@@ -307,6 +308,7 @@ The finding remains under monitoring rather than being classified as remediated 
 | INC-004 | SSH Root Login Security Hardening | Closed — Remediation Verified |
 | INC-005 | CVE-2021-3773 Vulnerability Investigation | Initial Triage Completed — Monitoring Required |
 | INC-006 | Custom SSH Root Authentication Detection | Closed — Authorized Test |
+| INC-007 | Linux Sudo Authentication Failure | Closed — Authorized Test |
 
 Each investigation report includes relevant information such as:
 
@@ -355,7 +357,7 @@ Completed a security monitoring review using the Wazuh Threat Hunting Dashboard,
 - [Wazuh Active Response Implementation](docs/active-response/Wazuh-Active-Response.md)
 - [Active Response Evidence](evidence/active-response/README.md)
 - [SOC Monitoring Dashboard Review](docs/soc-monitoring/SOC-Monitoring-Dashboard.md)
-
+- [INC-007: Linux Sudo Authentication Failure](docs/investigations/INC-007-linux-sudo-authentication-monitoring.md)
 
 ## Skills Demonstrated
 
@@ -385,6 +387,7 @@ Completed a security monitoring review using the Wazuh Threat Hunting Dashboard,
 - MITRE ATT&CK mapping
 - SOC incident analysis and documentation
 - Linux system administration and troubleshooting
+- Linux privileged-access monitoring and sudo authentication failure investigation
 
 ## Planned Enhancements
 
