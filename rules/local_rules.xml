@@ -1,0 +1,51 @@
+
+<!--
+  Wazuh SIEM SOC Lab
+  Custom Detection Rules
+
+  Rule 100001: Example SSH authentication rule
+  Rule 100002: Failed SSH authentication targeting root
+  Rule 100003: Controlled Active Response lab detection
+-->
+
+<group name="local,syslog,sshd,">
+
+  <!--
+    Rule 100001
+    Default example rule retained from the Wazuh configuration.
+    Matches SSH authentication failures from 1.1.1.1.
+  -->
+  <rule id="100001" level="5">
+    <if_sid>5716</if_sid>
+    <srcip>1.1.1.1</srcip>
+    <description>sshd: authentication failed from IP 1.1.1.1.</description>
+    <group>authentication_failed,pci_dss_10.2.4,pci_dss_10.2.5,</group>
+  </rule>
+
+  <!--
+    Rule 100002
+    Detects failed SSH authentication targeting the root account.
+    Uses PCRE2 exact matching to avoid matching other usernames.
+  -->
+  <rule id="100002" level="10">
+    <if_sid>5716</if_sid>
+    <user type="pcre2">^root$</user>
+    <description>Custom SOC Alert: Failed SSH authentication attempt for root account.</description>
+    <group>authentication_failed,ssh_root_attempt,</group>
+  </rule>
+
+  <!--
+    Rule 100003
+    Controlled Active Response lab rule.
+    Matches test username labtest and documentation IP 192.0.2.10.
+    Active Response was disabled after successful testing.
+  -->
+  <rule id="100003" level="5">
+    <if_sid>5760</if_sid>
+    <user type="pcre2">^labtest$</user>
+    <srcip>192.0.2.10</srcip>
+    <description>Active Response Lab: Controlled SSH authentication failure.</description>
+    <group>active_response_lab,authentication_failed,</group>
+  </rule>
+
+</group>
