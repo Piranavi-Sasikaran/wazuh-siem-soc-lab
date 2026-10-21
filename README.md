@@ -343,6 +343,27 @@ Completed a security monitoring review using the Wazuh Threat Hunting Dashboard,
 
 ![Wazuh SOC Monitoring Dashboard](screenshots/soc-monitoring/soc-monitoring-dashboard.png)
 
+
+## Custom Detection Rules
+
+Developed and tested custom Wazuh detection rules to identify
+suspicious SSH authentication activity and support controlled
+automated response testing.
+
+**Rule Files:**
+- [Custom Detection Rules Documentation](rules/README.md)
+- [Wazuh Custom Rules XML](rules/local_rules.xml)
+
+**Key Implementations:**
+- **Rule 100002 (Level 10):** Detects failed SSH authentication targeting the root account.
+- **Rule 100003 (Level 5):** Detects controlled SSH events used for Active Response testing.
+- **Alert Tuning:** Applied PCRE2 exact username matching to reduce false positives.
+- **Validation:** Tested detection behavior using Wazuh Logtest and live security alerts.
+
+**Safety Note:** Automated IP blocking was successfully tested
+with a 60-second timeout and subsequently disabled.
+
+
 ## Documentation
 
 - [System Architecture](docs/architecture.md)
@@ -409,14 +430,24 @@ The following capabilities are planned for future development:
 - [x] Active Response testing (Rule 100003; 60-second temporary IP block)
 - [x] Final SOC monitoring dashboard review
 
+
 ## Project Status
 
-**In Progress — Core SIEM deployment, SSH authentication monitoring, brute-force alert detection, File Integrity Monitoring, Security Configuration Assessment, Linux security hardening, initial vulnerability investigation, custom detection rule deployment, SSH alert tuning, and controlled Active Response testing completed.**
+**Completed — Portfolio Ready**
 
-Six security investigations have been documented with technical findings and supporting evidence.
+Successfully implemented and validated centralized SIEM monitoring,
+SSH threat detection, custom detection rules, alert tuning,
+File Integrity Monitoring, CIS Benchmark assessments, Linux SSH
+hardening, vulnerability investigations, and controlled Active Response.
 
-The next development phase focuses on additional detection coverage, security hardening, and a final SOC monitoring dashboard review.
+Completed a final SOC monitoring dashboard review and documented
+**seven SOC investigations** with supporting technical evidence.
 
----
+The controlled Active Response blocking action was disabled
+after successful testing.
+
+Additional security scenarios and remediation activities remain
+optional future enhancements.
+
 
 **Disclaimer:** This project is an educational cybersecurity laboratory. All security simulations and configuration changes are performed within an authorized testing environment.
